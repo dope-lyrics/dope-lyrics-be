@@ -2,17 +2,19 @@ import { Model, Schema, model } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import validator from "validator";
-
-// 1. Create an interface representing a document in MongoDB.
-interface IUser {
+export interface IUser {
   _id?: string;
   email: string;
   password: string;
-  tokens?: [];
+  tokens?: {
+    accessToken: string;
+    refreshTokens: [];
+  };
 }
 
 interface IUserMethods {
   generateAuthToken(): Promise<string>;
+  generateRefreshToken(): Promise<string>;
 }
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
@@ -35,6 +37,16 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       },
     },
     password: { type: String, required: true },
+    tokens: {
+      accessToken: {
+        type: String,
+      },
+      refreshTokens: [
+        {
+          type: String,
+        },
+      ],
+    },
   },
   {
     timestamps: true,
@@ -61,29 +73,54 @@ userSchema.static(
   }
 );
 
-// methods: are accessible on instances. aka instance methods.
 userSchema.method("generateAuthToken", async function generateAuthToken() {
   const user: any = this;
-  const token = jwt.sign({ _id: user._id!.toString() }, "__secret-key__");
-  user.tokens = user?.tokens?.concat({ token });
+  const accessToken = jwt.sign(
+    {
+      _id: user._id!.toString(),
+      email: user.email.toString(),
+    },
+    process.env.ACCESS_TOKEN_SECRET as string,
+    { expiresIn: "5s" }
+  );
+
+  // user.tokens = user?.tokens?.concat({ accessToken });
+  user.tokens.accessToken = accessToken;
 
   await user.save();
 
-  return token;
+  return accessToken;
 });
+
+userSchema.method(
+  "generateRefreshToken",
+  async function generateRefreshToken() {
+    const user: any = this;
+    const refreshToken = jwt.sign(
+      {
+        _id: user._id!.toString(),
+        email: user.email.toString(),
+      },
+      process.env.REFRESH_TOKEN_SECRET as string
+    );
+
+    user.tokens.refreshTokens.push(refreshToken);
+    await user.save();
+
+    return refreshToken;
+  }
+);
 
 // Hash the plain text password before saving
 userSchema.pre("save", async function (next) {
-  // this : the document is being saved.
   const user = this;
 
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
   }
-
   next();
 });
 
-const User = model<IUser, UserModel>("User", userSchema); // "User" is the collection name.
+const User = model<IUser, UserModel>("User", userSchema);
 
 export { User };

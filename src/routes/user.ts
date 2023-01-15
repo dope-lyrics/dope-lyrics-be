@@ -1,23 +1,74 @@
 import express from "express";
 import { User } from "../models/user";
+import { auth } from "../middlewares/auth";
+import jwt from "jsonwebtoken";
 
 const userRouter = express.Router();
+
+userRouter.post("/token", async (req, res) => {
+  const refreshToken: string = req.body.token;
+  if (refreshToken == null) return res.sendStatus(401);
+
+  try {
+    const decoded: any = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET as string
+    );
+
+    const user: any = await User.findOne({
+      _id: decoded._id,
+    });
+
+    let refreshTokens: string[] | undefined =
+      user?.tokens?.refreshTokens?.toObject();
+
+    // it is not valid
+    if (!refreshTokens?.includes(refreshToken)) {
+      return res.sendStatus(403);
+    }
+
+    // delete refresh token from db
+    user.tokens.refreshTokens = user?.tokens?.refreshTokens.filter(
+      (token: string) => token !== refreshToken
+    );
+
+    const accessToken = await user?.generateAuthToken();
+    const newRefreshToken = await user?.generateRefreshToken();
+    res.send({ accessToken, refreshToken: newRefreshToken });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(403);
+  }
+});
 
 userRouter.get("/", (req, res) => {
   res.send();
 });
 
+// for testing purpose
+userRouter.post("/add", auth, async (req: any, res) => {
+  res.send({
+    user: req.user,
+    token: req.token,
+  });
+});
+
 userRouter.post("/login", async (req, res) => {
+  console.log("loggin gets called");
   try {
     const user = await User.findByCredentials(
       req.body.email,
       req.body.password
     );
 
-    const token = await user.generateAuthToken();
-    console.log({ user, token });
+    const accessToken = await user.generateAuthToken();
+    const refreshToken = await user.generateRefreshToken();
 
-    res.send({ user: user, token });
+    res.send({
+      user: user,
+      accessToken,
+      refreshToken,
+    });
   } catch (error: any) {
     res.status(400).send({ error: error?.toString() });
   }
@@ -30,8 +81,8 @@ userRouter.post("/register", async (req, res) => {
   });
 
   try {
-    const token = await user.generateAuthToken();
-    res.status(201).send({ user, token });
+    const accessToken = await user.generateAuthToken();
+    res.status(201).send({ user, accessToken });
   } catch (error: any) {
     console.error(error);
     res.status(500).send({ error: error?._message || "Error has occurred" });
@@ -45,4 +96,14 @@ userRouter.delete("/deleteAll", async (req, res) => {
   });
 });
 
+userRouter.post("/logout", auth, async (req: any, res) => {
+  try {
+    req.user.tokens = {};
+    await req.user.save();
+
+    res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+  }
+});
 export { userRouter };
