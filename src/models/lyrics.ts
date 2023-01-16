@@ -6,6 +6,7 @@ export interface ILyrics {
   mood: string;
   singer: string;
   language: string;
+  song: string;
   owner: {
     type: {
       id: mongoose.Schema.Types.ObjectId;
@@ -24,6 +25,7 @@ const lyricsSchema = new Schema<ILyrics, LyricsModel, ILyricsMethods>(
     mood: { type: String, required: true, default: "uncertain" },
     singer: { type: String, required: true },
     language: { type: String },
+    song: { type: String },
     owner: {
       type: [
         {
