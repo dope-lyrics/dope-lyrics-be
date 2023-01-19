@@ -17,6 +17,12 @@ app.use(
   })
 );
 
+app.get("/", (req, res) => {
+  res.send({
+    data: "Welcome!",
+  });
+});
+
 app.use(express.json());
 app.use(userRouter);
 app.use("/lyrics", lyricsRouter);

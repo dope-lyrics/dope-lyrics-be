@@ -27,12 +27,10 @@ const lyricsSchema = new Schema<ILyrics, LyricsModel, ILyricsMethods>(
     language: { type: String },
     song: { type: String },
     owner: {
-      type: [
-        {
-          id: { type: mongoose.Schema.Types.ObjectId },
-          email: { type: String },
-        },
-      ],
+      type: {
+        id: { type: mongoose.Schema.Types.ObjectId },
+        email: { type: String },
+      },
       required: true,
       ref: "User",
     },
