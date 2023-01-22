@@ -54,7 +54,6 @@ userRouter.post("/add", auth, async (req: any, res) => {
 });
 
 userRouter.post("/login", async (req, res) => {
-  console.log("loggin gets called");
   try {
     const user = await User.findByCredentials(
       req.body.email,
@@ -70,7 +69,7 @@ userRouter.post("/login", async (req, res) => {
       refreshToken,
     });
   } catch (error: any) {
-    res.status(400).send({ error: error?.toString() });
+    res.status(404).send({ error: error?.message });
   }
 });
 

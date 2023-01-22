@@ -15,13 +15,13 @@ export interface IUser {
 interface IUserMethods {
   generateAuthToken(): Promise<string>;
   generateRefreshToken(): Promise<string>;
+  toJSON(): any;
 }
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
   findByCredentials(email: string, password: string): Promise<any>;
 }
 
-// 2. Create a Schema corresponding to the document interface.
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
     email: {
@@ -60,7 +60,7 @@ userSchema.static(
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw new Error("Unable to login");
+      throw new Error("User not found");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -120,6 +120,20 @@ userSchema.pre("save", async function (next) {
   }
   next();
 });
+
+// do not send these fields in response.
+// when we pass object into res.send, it implicitly call JSON.stringify.
+// JSON.stringify calls toJSON function of the object.
+userSchema.methods.toJSON = function () {
+  const user = this;
+  const userObject = user.toObject();
+  delete userObject.password;
+  delete userObject.tokens;
+  delete userObject["__v"];
+  delete userObject["_id"];
+
+  return userObject;
+};
 
 const User = model<IUser, UserModel>("User", userSchema);
 
