@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import validator from "validator";
 export interface IUser {
   _id?: string;
-  email: string;
+  username: string;
   password: string;
   tokens?: {
     accessToken: string;
@@ -19,20 +19,19 @@ interface IUserMethods {
 }
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
-  findByCredentials(email: string, password: string): Promise<any>;
+  findByCredentials(username: string, password: string): Promise<any>;
 }
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
-    email: {
+    username: {
       type: String,
       unique: true,
       required: true,
       trim: true,
-      lowercase: true,
       validate(value: string) {
-        if (!validator.isEmail(value)) {
-          throw new Error("Email is invalid");
+        if (!validator.isLength(value, { min: 6 })) {
+          throw new Error("Username name must contain at least 6 character");
         }
       },
     },
@@ -65,8 +64,8 @@ userSchema.set("toObject", { getters: true });
 // statics methods are accessible on models. aka model methods.
 userSchema.static(
   "findByCredentials",
-  async function findByCredentials(email, password) {
-    const user = await User.findOne({ email });
+  async function findByCredentials(username, password) {
+    const user = await User.findOne({ username });
 
     if (!user) {
       throw new Error("User not found");
@@ -87,7 +86,7 @@ userSchema.method("generateAuthToken", async function generateAuthToken() {
   const accessToken = jwt.sign(
     {
       _id: user._id!.toString(),
-      email: user.email.toString(),
+      username: user.username.toString(),
     },
     process.env.ACCESS_TOKEN_SECRET as string,
     { expiresIn: "5s" }
@@ -108,7 +107,7 @@ userSchema.method(
     const refreshToken = jwt.sign(
       {
         _id: user._id!.toString(),
-        email: user.email.toString(),
+        username: user.username.toString(),
       },
       process.env.REFRESH_TOKEN_SECRET as string
     );
@@ -127,6 +126,7 @@ userSchema.pre("save", async function (next) {
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
   }
+
   next();
 });
 

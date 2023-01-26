@@ -66,7 +66,7 @@ userRouter.post("/add", auth, async (req: any, res) => {
 userRouter.post("/login", async (req, res) => {
   try {
     const user = await User.findByCredentials(
-      req.body.email,
+      req.body.username,
       req.body.password
     );
 
@@ -85,7 +85,7 @@ userRouter.post("/login", async (req, res) => {
 
 userRouter.post("/register", async (req, res) => {
   const user = new User({
-    email: req.body?.email,
+    username: req.body?.username,
     password: req.body?.password,
   });
 
@@ -115,4 +115,5 @@ userRouter.post("/logout", auth, async (req: any, res) => {
     console.log(error);
   }
 });
+
 export { userRouter };
