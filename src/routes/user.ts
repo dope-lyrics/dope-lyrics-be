@@ -41,8 +41,18 @@ userRouter.post("/token", async (req, res) => {
   }
 });
 
-userRouter.get("/", (req, res) => {
-  res.send();
+userRouter.get("/users", async (req: any, res) => {
+  try {
+    let users = await User.find({}).populate("lyrics");
+
+    res.send({
+      data: users,
+    });
+  } catch (error) {
+    res.status(404).send({
+      data: null,
+    });
+  }
 });
 
 // for testing purpose

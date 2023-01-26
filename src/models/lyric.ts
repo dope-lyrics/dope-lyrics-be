@@ -1,25 +1,20 @@
 import mongoose, { Model, Schema, model } from "mongoose";
 
-export interface ILyrics {
+export interface ILyric {
   _id?: string;
   lyric: string;
   mood: string;
   singer: string;
   language: string;
   song: string;
-  owner: {
-    type: {
-      id: mongoose.Schema.Types.ObjectId;
-      email: string;
-    };
-  };
+  owner: mongoose.Schema.Types.ObjectId;
 }
 
-interface ILyricsMethods {}
+interface ILyricMethods {}
 
-interface LyricsModel extends Model<ILyrics, {}, ILyricsMethods> {}
+interface LyricsModel extends Model<ILyric, {}, ILyricMethods> {}
 
-const lyricsSchema = new Schema<ILyrics, LyricsModel, ILyricsMethods>(
+const lyricSchema = new Schema<ILyric, LyricsModel, ILyricMethods>(
   {
     lyric: { type: String, trim: true, required: true },
     mood: { type: String, required: true, default: "uncertain" },
@@ -27,10 +22,7 @@ const lyricsSchema = new Schema<ILyrics, LyricsModel, ILyricsMethods>(
     language: { type: String },
     song: { type: String },
     owner: {
-      type: {
-        id: { type: mongoose.Schema.Types.ObjectId },
-        email: { type: String },
-      },
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "User",
     },
@@ -40,6 +32,6 @@ const lyricsSchema = new Schema<ILyrics, LyricsModel, ILyricsMethods>(
   }
 );
 
-const Lyrics = model<ILyrics, LyricsModel>("Lyrics", lyricsSchema);
+const Lyric = model<ILyric, LyricsModel>("Lyric", lyricSchema);
 
-export { Lyrics };
+export { Lyric };

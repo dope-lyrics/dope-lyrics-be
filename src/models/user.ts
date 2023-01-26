@@ -53,6 +53,15 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   }
 );
 
+userSchema.virtual("lyrics", {
+  ref: "Lyric",
+  localField: "_id",
+  foreignField: "owner",
+});
+
+// for including the virtual in res.send() on express
+userSchema.set("toObject", { getters: true });
+
 // statics methods are accessible on models. aka model methods.
 userSchema.static(
   "findByCredentials",
@@ -130,7 +139,7 @@ userSchema.methods.toJSON = function () {
   delete userObject.password;
   delete userObject.tokens;
   delete userObject["__v"];
-  delete userObject["_id"];
+  // delete userObject["_id"];
 
   return userObject;
 };

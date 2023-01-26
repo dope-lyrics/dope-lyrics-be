@@ -1,5 +1,5 @@
 import express, { response } from "express";
-import { Lyrics } from "../models/lyrics";
+import { Lyric } from "../models/lyric";
 import { auth } from "../middlewares/auth";
 
 const lyricsRouter = express.Router();
@@ -10,8 +10,16 @@ lyricsRouter.use((req, res, next) => {
 });
 
 lyricsRouter.get("/", async (req, res) => {
+  const { page, limit = 10 }: any = req.query;
+
   try {
-    const lyrics = await Lyrics.find({});
+    const lyrics = await Lyric.find({})
+      .populate("owner")
+      .limit(limit)
+      .skip(page * limit);
+
+    const totalLyricCount = await Lyric.estimatedDocumentCount();
+    const hasMore = totalLyricCount > limit * page;
 
     if (!lyrics) {
       res.send({
@@ -22,7 +30,11 @@ lyricsRouter.get("/", async (req, res) => {
     }
 
     res.send({
-      data: lyrics,
+      data: {
+        lyrics: lyrics.length > 0 ? lyrics : null,
+        hasMore,
+        totalCount: totalLyricCount,
+      },
       message: null,
     });
   } catch (error) {
@@ -34,22 +46,16 @@ lyricsRouter.get("/", async (req, res) => {
 });
 
 lyricsRouter.post("/add", auth, async (req: any, res) => {
-  const lyrics = new Lyrics({
+  const lyrics = new Lyric({
     ...req.body,
-    owner: {
-      _id: req.user._id,
-      email: req.user.email,
-    },
+    owner: req.user._id,
   });
-
-  console.log("new lyric is : ", lyrics);
 
   try {
     const result = await lyrics.save();
-    console.log("result is : ", result);
 
     res.send({
-      data: await Lyrics.find({}),
+      data: await Lyric.find({}),
     });
   } catch (error: any) {
     console.log("ERROR: ", error);
@@ -58,13 +64,11 @@ lyricsRouter.post("/add", auth, async (req: any, res) => {
 });
 
 lyricsRouter.get("/:mood", async (req, res) => {
-  console.log("in /:mood");
   const mood = req.params.mood;
   try {
-    const foundLyric = await Lyrics.find({
+    const foundLyric = await Lyric.find({
       mood: mood,
     });
-    console.log("foundLyric:", foundLyric);
     res.send({
       data: foundLyric,
     });
