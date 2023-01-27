@@ -55,7 +55,6 @@ userRouter.get("/users", async (req: any, res) => {
   }
 });
 
-// for testing purpose
 userRouter.post("/add", auth, async (req: any, res) => {
   res.send({
     user: req.user,
@@ -110,9 +109,10 @@ userRouter.post("/logout", auth, async (req: any, res) => {
     req.user.tokens = {};
     await req.user.save();
 
-    res.sendStatus(204);
+    res.sendStatus(200);
   } catch (error) {
     console.log(error);
+    res.sendStatus(404);
   }
 });
 

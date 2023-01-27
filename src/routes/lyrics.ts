@@ -19,7 +19,7 @@ lyricsRouter.get("/", async (req, res) => {
       .skip(page * limit);
 
     const totalLyricCount = await Lyric.estimatedDocumentCount();
-    const hasMore = totalLyricCount > limit * page;
+    const hasMore = totalLyricCount > limit * (page + 1);
 
     if (!lyrics) {
       res.send({
@@ -59,7 +59,7 @@ lyricsRouter.post("/add", auth, async (req: any, res) => {
     });
   } catch (error: any) {
     console.log("ERROR: ", error);
-    res.status(400).send(error.toString());
+    res.status(400).send({ error: error?.message });
   }
 });
 
