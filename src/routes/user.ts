@@ -89,8 +89,8 @@ userRouter.post("/register", async (req, res) => {
   });
 
   try {
-    const accessToken = await user.generateAuthToken();
-    res.status(201).send({ user, accessToken });
+    await user.save();
+    res.status(201).send({ user });
   } catch (error: any) {
     console.error(error);
     res.status(500).send({ error: error?._message || "Error has occurred" });

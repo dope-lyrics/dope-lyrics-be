@@ -35,7 +35,15 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
         }
       },
     },
-    password: { type: String, required: true },
+    password: {
+      type: String,
+      required: true,
+      validate(value: string) {
+        if (!validator.isLength(value, { min: 3 })) {
+          throw new Error("Password must contain at least 3 character");
+        }
+      },
+    },
     tokens: {
       accessToken: {
         type: String,

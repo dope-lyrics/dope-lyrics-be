@@ -1,4 +1,5 @@
 import mongoose, { Model, Schema, model } from "mongoose";
+import validator from "validator";
 
 export interface ILyric {
   _id?: string;
@@ -16,7 +17,16 @@ interface LyricsModel extends Model<ILyric, {}, ILyricMethods> {}
 
 const lyricSchema = new Schema<ILyric, LyricsModel, ILyricMethods>(
   {
-    lyric: { type: String, trim: true, required: true },
+    lyric: {
+      type: String,
+      trim: true,
+      required: true,
+      validate(value: string) {
+        if (!validator.isLength(value, { max: 144 })) {
+          throw new Error("Lyric can be at most 144 characters");
+        }
+      },
+    },
     mood: { type: String, required: true, default: "uncertain" },
     singer: { type: String, required: true },
     language: { type: String },
