@@ -5,7 +5,6 @@ import { auth } from "../middlewares/auth";
 const lyricsRouter = express.Router();
 
 lyricsRouter.use((req, res, next) => {
-  console.log("In router middleware");
   next();
 });
 
@@ -16,7 +15,10 @@ lyricsRouter.get("/", async (req, res) => {
     const lyrics = await Lyric.find({})
       .populate("owner")
       .limit(limit)
-      .skip(page * limit);
+      .skip(page * limit)
+      .sort({
+        createdAt: "descending",
+      });
 
     const totalLyricCount = await Lyric.estimatedDocumentCount();
     const hasMore = totalLyricCount > limit * (page + 1);
