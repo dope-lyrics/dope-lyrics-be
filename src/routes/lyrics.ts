@@ -10,7 +10,6 @@ lyricsRouter.use((req, res, next) => {
 
 lyricsRouter.get("/", async (req, res) => {
   const { page, limit = 10 }: any = req.query;
-
   try {
     const lyrics = await Lyric.find({})
       .populate("owner")
@@ -77,6 +76,22 @@ lyricsRouter.get("/:mood", async (req, res) => {
   } catch (error) {
     res.status(404).send(404);
   }
+});
+
+/**
+ * example of iterating documents of a Model, and update it.
+ */
+lyricsRouter.post("/modify-lyrics", async (req, res) => {
+  for await (const doc of Lyric.find({})) {
+    /**
+     * some changes...
+     * doc.lyric = []
+     * */
+
+    // save
+    await doc.save();
+  }
+  res.send();
 });
 
 export { lyricsRouter };

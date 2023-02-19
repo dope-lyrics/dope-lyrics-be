@@ -55,12 +55,6 @@ userRouter.get("/users", async (req: any, res) => {
   }
 });
 
-userRouter.post("/add", auth, async (req: any, res) => {
-  res.send({
-    user: req.user,
-    token: req.token,
-  });
-});
 
 userRouter.post("/login", async (req, res) => {
   try {

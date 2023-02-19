@@ -3,7 +3,7 @@ import validator from "validator";
 
 export interface ILyric {
   _id?: string;
-  lyric: string;
+  lyric: string[];
   mood: string;
   singer: string;
   language: string;
@@ -18,11 +18,14 @@ interface LyricsModel extends Model<ILyric, {}, ILyricMethods> {}
 const lyricSchema = new Schema<ILyric, LyricsModel, ILyricMethods>(
   {
     lyric: {
-      type: String,
-      trim: true,
+      type: [String],
       required: true,
-      validate(value: string) {
-        if (!validator.isLength(value, { max: 144 })) {
+      validate(value: string[]) {
+        let size = 0;
+        value.forEach((lyric) => {
+          size += lyric.length;
+        });
+        if (size > 144) {
           throw new Error("Lyric can be at most 144 characters");
         }
       },
