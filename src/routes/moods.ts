@@ -24,6 +24,14 @@ const getMoods = (req: Express.Request) => {
       key: "sad",
       value: req.t("moods.sad"),
     },
+    {
+      key: "energetic",
+      value: req.t("moods.energetic"),
+    },
+    {
+      key: "motivational",
+      value: req.t("moods.motivational"),
+    },
   ];
 };
 
