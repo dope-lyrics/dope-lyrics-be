@@ -1,0 +1,10 @@
+{
+  "moods": {
+    "uncertain": "belirsiz",
+    "banger": "patlayıcı",
+    "happy": "mutlu",
+    "deep": "derin",
+    "emotional": "duygusal",
+    "sad": "hüzünlü"
+  }
+}

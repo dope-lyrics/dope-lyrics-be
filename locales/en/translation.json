@@ -1,0 +1,10 @@
+{
+  "moods": {
+    "uncertain": "uncertain",
+    "banger": "banger",
+    "happy": "happy",
+    "deep": "deep",
+    "emotional": "emotional",
+    "sad": "sad"
+  }
+}

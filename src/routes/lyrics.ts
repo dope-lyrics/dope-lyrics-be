@@ -1,6 +1,7 @@
 import express, { response } from "express";
 import { Lyric } from "../models/lyric";
 import { auth } from "../middlewares/auth";
+import { getMoods } from "./moods";
 
 const lyricsRouter = express.Router();
 
@@ -46,6 +47,12 @@ lyricsRouter.get("/", async (req, res) => {
   }
 });
 
+lyricsRouter.get("/moods", async (req, res) => {
+  res.send({
+    data: getMoods(req),
+  });
+});
+
 lyricsRouter.post("/add", auth, async (req: any, res) => {
   const lyrics = new Lyric({
     ...req.body,
@@ -81,17 +88,17 @@ lyricsRouter.get("/:mood", async (req, res) => {
 /**
  * example of iterating documents of a Model, and update it.
  */
-lyricsRouter.post("/modify-lyrics", async (req, res) => {
-  for await (const doc of Lyric.find({})) {
-    /**
-     * some changes...
-     * doc.lyric = []
-     * */
+// lyricsRouter.post("/modify-lyrics", async (req, res) => {
+//   for await (const doc of Lyric.find({})) {
+//     /**
+//      * some changes...
+//      * doc.lyric = []
+//      * */
 
-    // save
-    await doc.save();
-  }
-  res.send();
-});
+//     // save
+//     await doc.save();
+//   }
+//   res.send();
+// });
 
 export { lyricsRouter };
