@@ -1,4 +1,4 @@
-import express, { response } from "express";
+import express from "express";
 import { Lyric } from "../models/lyric";
 import { auth } from "../middlewares/auth";
 import { getMoods } from "./moods";
@@ -66,7 +66,6 @@ lyricsRouter.post("/add", auth, async (req: any, res) => {
       data: await Lyric.find({}),
     });
   } catch (error: any) {
-    console.log("ERROR: ", error);
     res.status(400).send({ error: error?.message });
   }
 });

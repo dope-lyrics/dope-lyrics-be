@@ -97,10 +97,9 @@ userSchema.method("generateAuthToken", async function generateAuthToken() {
       username: user.username.toString(),
     },
     process.env.ACCESS_TOKEN_SECRET as string,
-    { expiresIn: "5s" }
+    { expiresIn: "10m" }
   );
 
-  // user.tokens = user?.tokens?.concat({ accessToken });
   user.tokens.accessToken = accessToken;
 
   await user.save();

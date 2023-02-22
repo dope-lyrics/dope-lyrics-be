@@ -41,7 +41,7 @@ userRouter.post("/token", async (req, res) => {
   }
 });
 
-userRouter.get("/users", async (req: any, res) => {
+userRouter.get("/users", async (req, res) => {
   try {
     let users = await User.find({}).populate("lyrics");
 
@@ -54,7 +54,6 @@ userRouter.get("/users", async (req: any, res) => {
     });
   }
 });
-
 
 userRouter.post("/login", async (req, res) => {
   try {
@@ -71,8 +70,8 @@ userRouter.post("/login", async (req, res) => {
       accessToken,
       refreshToken,
     });
-  } catch (error: any) {
-    res.status(404).send({ error: error?.message });
+  } catch (error) {
+    res.status(404).send({ error: (error as Error)?.message });
   }
 });
 
