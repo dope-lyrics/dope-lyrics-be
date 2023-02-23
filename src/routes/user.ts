@@ -24,7 +24,9 @@ userRouter.post("/token", async (req, res) => {
 
     // it is not valid
     if (!refreshTokens?.includes(refreshToken)) {
-      return res.sendStatus(403);
+      return res.status(403).send({
+        message: "No valid refresh token",
+      });
     }
 
     // delete refresh token from db
@@ -34,10 +36,25 @@ userRouter.post("/token", async (req, res) => {
 
     const accessToken = await user?.generateAuthToken();
     const newRefreshToken = await user?.generateRefreshToken();
-    res.send({ accessToken, refreshToken: newRefreshToken });
+    res.send({ data: { accessToken, refreshToken: newRefreshToken } });
   } catch (error) {
-    console.log(error);
-    res.sendStatus(403);
+    const decoded: any = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET as string,
+      {
+        ignoreExpiration: true,
+      }
+    );
+    const user = await User.findOne({ _id: decoded._id });
+    // @ts-ignore
+    user.tokens = {};
+    // @ts-ignore
+    await user.save();
+
+    res.status(403).send({
+      redirect: "/",
+      message: (error as Error).message,
+    });
   }
 });
 
