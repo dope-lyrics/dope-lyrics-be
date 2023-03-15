@@ -60,7 +60,7 @@ lyricsRouter.post("/add", auth, async (req: any, res) => {
   });
 
   try {
-    const result = await lyrics.save();
+    await lyrics.save();
 
     res.send({
       data: await Lyric.find({}),

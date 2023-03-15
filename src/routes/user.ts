@@ -107,13 +107,6 @@ userRouter.post("/register", async (req, res) => {
   }
 });
 
-userRouter.delete("/deleteAll", async (req, res) => {
-  const deletedDocsCount = await User.deleteMany({});
-  res.send({
-    deletedDocsCount,
-  });
-});
-
 userRouter.post("/logout", auth, async (req: any, res) => {
   try {
     req.user.tokens = {};
