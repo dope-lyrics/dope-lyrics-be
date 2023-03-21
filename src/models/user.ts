@@ -6,6 +6,7 @@ export interface IUser {
   _id?: string;
   username: string;
   password: string;
+  email: string;
   tokens?: {
     accessToken: string;
     refreshTokens: [];
@@ -41,6 +42,15 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       validate(value: string) {
         if (!validator.isLength(value, { min: 3 })) {
           throw new Error("Password must contain at least 3 character");
+        }
+      },
+    },
+    email: {
+      type: String,
+      required: true,
+      validate(value: string) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Not valid email!");
         }
       },
     },
