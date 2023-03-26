@@ -172,10 +172,6 @@ userRouter.post("/verify/:id", async (req, res) => {
       accessToken,
       refreshToken,
     });
-
-    // res.send({
-    //   data: "User has been verified successfully",
-    // });
   } catch (error) {
     res.status(404).send({
       data: null,
@@ -196,12 +192,4 @@ userRouter.post("/logout", auth, async (req: any, res) => {
   }
 });
 
-// userRouter.post("/modifyUsers", async (req, res) => {
-//   for await (const user of User.find({})) {
-//     console.log(user);
-//     user.email = "example@email.com";
-//     await user.save();
-//   }
-//   res.send();
-// });
 export { userRouter };
