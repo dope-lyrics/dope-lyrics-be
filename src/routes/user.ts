@@ -2,7 +2,7 @@ import express from "express";
 import { User } from "../models/user";
 import { auth } from "../middlewares/auth";
 import jwt from "jsonwebtoken";
-import { decrypt } from "../utils/crypto";
+import { decryptUserData } from "../utils/crypto";
 import { sendVerificationEmail } from "../utils/email";
 
 const userRouter = express.Router();
@@ -85,9 +85,12 @@ userRouter.post("/login", async (req, res) => {
     const refreshToken = await user.generateRefreshToken();
 
     res.send({
-      user: user,
-      accessToken,
-      refreshToken,
+      data: {
+        user: user,
+        accessToken,
+        refreshToken,
+      },
+      error: null,
     });
   } catch (error) {
     res.status(404).send({ error: (error as Error)?.message });
@@ -95,8 +98,20 @@ userRouter.post("/login", async (req, res) => {
 });
 
 userRouter.post("/register", async (req, res) => {
-  if (!req.body.username || !req.body.password || !req.body.email) {
-    res.status(404).send();
+  if (
+    !req.body.username ||
+    !req.body.password ||
+    !req.body.passwordConfirm ||
+    !req.body.email
+  ) {
+    res.status(400).send({ error: req.t("common.error.missingInputs") });
+    return;
+  }
+
+  if (req.body.password !== req.body.passwordConfirm) {
+    res.status(400).send({
+      error: req.t("register.form.validation.password.dontMatch"),
+    });
     return;
   }
 
@@ -113,21 +128,25 @@ userRouter.post("/register", async (req, res) => {
   if (user) {
     return res.status(404).send({
       data: null,
-      error: "The user is already in use",
+      error: req.t("register.form.validation.user.alreadyInUse"),
     });
   }
 
   try {
     const info = await sendVerificationEmail({
       to: userData.email,
-      subject: "Email Verification",
+      subject: req.t("register.email.verification"),
       data: userData,
+      req: req,
     });
 
-    console.log({ info });
-
     res.send({
-      data: "Email has been sent. Please check spam folder too.",
+      data: {
+        message: `${req.t("register.result.success", {
+          email: userData.email,
+        })}`,
+      },
+      error: null,
     });
   } catch (error) {
     res.status(400).send({
@@ -137,30 +156,41 @@ userRouter.post("/register", async (req, res) => {
   }
 });
 
-userRouter.post("/verify/:id", async (req, res) => {
-  const id = req.params.id;
+userRouter.post(" /:code", async (req, res) => {
+  const code = req.params.code;
+  if (!code) {
+    res.status(400).send({
+      data: null,
+      error: "Code is missing!",
+    });
+  }
 
   try {
-    const decoded: any = jwt.verify(
-      id,
-      process.env.REGISTER_USER_DATA as string
-    );
+    const decryptedUserData = decryptUserData(code);
 
-    const decrpyted = decrypt(decoded);
-    const userData = JSON.parse(decrpyted);
+    if (decryptedUserData.exp > decryptedUserData.iat) {
+      return res.status(404).send({
+        data: null,
+        error: "Link is expired",
+      });
+    }
 
     const isAlreadyVerified = await User.findOne({
-      username: userData.username,
+      username: decryptedUserData.username,
     });
 
     if (isAlreadyVerified) {
       return res.status(404).send({
         data: null,
-        error: "The user has already been verified.",
+        error: req.t("register.form.validation.user.alreadyVerified"),
       });
     }
 
-    const user = await new User(userData);
+    const user = await new User({
+      username: decryptedUserData.username,
+      password: decryptedUserData.password,
+      email: decryptedUserData.email,
+    });
 
     const accessToken = await user.generateAuthToken();
     const refreshToken = await user.generateRefreshToken();
@@ -168,14 +198,17 @@ userRouter.post("/verify/:id", async (req, res) => {
     await user.save();
 
     res.send({
-      user: user,
-      accessToken,
-      refreshToken,
+      data: {
+        user: user,
+        accessToken,
+        refreshToken,
+      },
+      error: null,
     });
   } catch (error) {
     res.status(404).send({
       data: null,
-      error: "Error occurred",
+      error: req.t("common.error.generic"),
     });
   }
 });

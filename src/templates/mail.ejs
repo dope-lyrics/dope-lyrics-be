@@ -10,17 +10,19 @@
     <table style="width: 100%; font-family: monospace">
       <tbody>
         <tr>
-          <td style="font-size: 20px; color: #222">Welcome Aboard</td>
+          <td style="font-size: 20px; color: #222"><%= welcome %></td>
+        </tr>
+        <tr>
+          <td style="font-size: 16px; color: #222"><%= heading %></td>
         </tr>
         <tr>
           <td style="font-size: 16px; color: #222">
-            You are about to be part of
-            <b><i>Dope Lyrics!</i></b>
+            <a href="<%= url %>"><%= verify %> </a>
           </td>
         </tr>
         <tr>
-          <td style="font-size: 16px; color: #222">
-            <a href="<%= url %>">Click to verify</a>
+          <td style="text-decoration: underline; color: red; font-weight: bold">
+            <%= valid24Hours %>
           </td>
         </tr>
       </tbody>

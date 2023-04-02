@@ -1,4 +1,33 @@
 {
+  "common": {
+    "error": {
+      "generic": "Error occurred",
+      "missingInputs": "There is missing input(s)"
+    }
+  },
+  "register": {
+    "result": {
+      "success": "Email has been sent to {{email}}, don't forget to check spam folder."
+    },
+    "form": {
+      "validation": {
+        "password": {
+          "dontMatch": "Passwords don't match"
+        },
+        "user": {
+          "alreadyInUse": "The user is already in use.",
+          "alreadyVerified": "The user has already been verified"
+        }
+      }
+    },
+    "email": {
+      "verification": "Email verification",
+      "welcome": "Welcome Aboard",
+      "heading": "You are about to be part of us",
+      "verify": "Verify",
+      "valid24Hours": "This email is valid only for 24 hours"
+    }
+  },
   "moods": {
     "uncertain": "uncertain",
     "banger": "banger",

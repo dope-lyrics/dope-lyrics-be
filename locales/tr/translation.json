@@ -1,4 +1,33 @@
 {
+  "common": {
+    "error": {
+      "generic": "Hata oluştu",
+      "missingInputs": "Doldurulmamış input(lar) var.Lütfen kontrol ediniz."
+    }
+  },
+  "register": {
+    "result": {
+      "success": "E-posta {{email}} adresine başarıyla gönderildi.Lütfen spam klasörünü de kontrol ediniz."
+    },
+    "form": {
+      "validation": {
+        "password": {
+          "dontMatch": "Şifreler eşleşmiyor."
+        },
+        "user": {
+          "alreadyInUse": "Şuan kullanımda olan bir kullanıcı adı girdiniz.",
+          "alreadyVerified": "Bu kullanıcı daha önce onaylandı."
+        }
+      }
+    },
+    "email": {
+      "verification": "Hesabınızı onaylayın",
+      "welcome": "Hoş geldin!",
+      "heading": "Aramızdan biri olmaya çok yakınsın",
+      "verify": "Onayla",
+      "valid24Hours": "Bu email 24 saat geçerlidir"
+    }
+  },
   "moods": {
     "uncertain": "belirsiz",
     "banger": "patlayıcı",
