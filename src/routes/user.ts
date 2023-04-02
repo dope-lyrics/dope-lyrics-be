@@ -156,7 +156,7 @@ userRouter.post("/register", async (req, res) => {
   }
 });
 
-userRouter.post(" /:code", async (req, res) => {
+userRouter.post("/verify/:code", async (req, res) => {
   const code = req.params.code;
   if (!code) {
     res.status(400).send({
@@ -168,7 +168,7 @@ userRouter.post(" /:code", async (req, res) => {
   try {
     const decryptedUserData = decryptUserData(code);
 
-    if (decryptedUserData.exp > decryptedUserData.iat) {
+    if (new Date().getTime() > decryptedUserData.exp.getTime()) {
       return res.status(404).send({
         data: null,
         error: "Link is expired",
